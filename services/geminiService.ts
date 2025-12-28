@@ -1,15 +1,28 @@
 import { GoogleGenAI } from "@google/genai";
 import { GEMINI_MODEL_TEXT } from "../constants";
 
+// Helper to safely access env vars
+const getEnv = (key: string) => {
+  try {
+    // @ts-ignore
+    return typeof process !== 'undefined' && process.env ? process.env[key] : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const API_KEY = getEnv('API_KEY') || '';
+
 // Initialize the API client. 
 // Note: In a real production app, ensure your key is restricted or proxied through a backend.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export const analyzeInquiry = async (message: string, context: string = '') => {
-  if (!process.env.API_KEY) {
+  if (!API_KEY) {
     return {
-      summary: "API Key missing. Cannot generate summary.",
-      suggestedReply: "Please configure your Google Gemini API Key."
+      summary: "API Key missing.",
+      sentiment: "Neutral",
+      suggestedReply: "Please configure your Google Gemini API Key in the environment variables to use AI features."
     };
   }
 
